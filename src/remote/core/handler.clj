@@ -7,7 +7,7 @@
             [clojure.data.json :as json]
             [clojure.tools.logging :as log]))
 
-(def root "/Users/andrei/Movies/")
+(def root "/Users/andrei/Movies")
 (def fifo "/tmp/remote_fifo")
 
 (defn resp [r]
@@ -32,11 +32,20 @@
    :is-directory (.isDirectory file)
    :hash (hash file)})
 
+(defn get-parent [path]
+  (let [parent (.getParentFile (file path))]
+    {(str (hash parent))
+     {:name ".."
+      :is-directory true}}))
+
 (defn get-movies [path]
   (let [files (.listFiles (file path))
         names (map #(hash-map :name (.getName %) :is-directory (.isDirectory %)) files)
-        ids (map #(str (hash %)) files)]
-  (zipmap ids names)))
+        ids (map #(str (hash %)) files)
+        movies (zipmap ids names)]
+    (if (= path root)
+      movies
+      (merge (get-parent path) movies))))
 
 (defn play [id]
   (let [movie (path-by-id id)
