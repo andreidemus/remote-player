@@ -9,7 +9,7 @@
             [ring.adapter.jetty :as jetty])
   (:gen-class))
 
-(def root "/Users/andrei/Movies")
+(def root (atom "/Users/andrei/Movies"))
 (def fifo "/tmp/remote_fifo")
 
 (defn resp [r]
@@ -19,7 +19,7 @@
   (resp {:status "ok"}))
 
 (defn path-by-id [id]
-  (let [fs (file-seq (file root))]
+  (let [fs (file-seq (file @root))]
     (when-let [f (some #(when (= (hash %) id) %) fs)]
       (.getPath f))))
 
@@ -47,7 +47,7 @@
                                         (accept [this f]
                                           (not (.isHidden f)))))
         movies (map file-to-map files)]
-    (if (= path root)
+    (if (= path @root)
       movies
       (cons (get-parent path) movies))))
 
@@ -61,7 +61,7 @@
     (ok)))
 
 (defn playlist []
-  (resp (get-movies root)))
+  (resp (get-movies @root)))
 
 (defn dir-playlist [id]
   (resp (get-movies (path-by-id id))))
@@ -86,8 +86,9 @@
   (wrap-defaults app-routes site-defaults))
 
 (defn -main
-  [& [port]]
-  (let [port (Integer. (or port
+  [& [root1 port1]]
+  (swap! root (fn [_] root1))
+  (let [port (Integer. (or port1
                          (System/getenv "PORT")
                          80))]
     (jetty/run-jetty #'app {:port port
