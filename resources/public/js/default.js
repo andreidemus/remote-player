@@ -38,7 +38,7 @@ function loadPlaylist(dirId) {
             else icon = fileIcon;
             var item = "<li class='list-group-item movie' id='movie-" + id + "'>"
                 + icon
-                + " <a href='#' data-id='" + id + "' data-is-directory='" + isDirectory + "'>"
+                + " &nbsp;<a href='#' data-id='" + id + "' data-is-directory='" + isDirectory + "'>"
                 + name + "</a></li>";
             items.push(item);
         });

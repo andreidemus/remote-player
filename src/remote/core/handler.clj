@@ -5,7 +5,9 @@
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [clojure.data.json :as json]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [ring.adapter.jetty :as jetty])
+  (:gen-class))
 
 (def root "/Users/andrei/Movies")
 (def fifo "/tmp/remote_fifo")
@@ -82,3 +84,11 @@
 
 (def app
   (wrap-defaults app-routes site-defaults))
+
+(defn -main
+  [& [port]]
+  (let [port (Integer. (or port
+                         (System/getenv "PORT")
+                         80))]
+    (jetty/run-jetty #'app {:port port
+                            :join? false})))

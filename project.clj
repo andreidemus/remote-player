@@ -11,9 +11,11 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
-                 [org.slf4j/slf4j-log4j12 "1.6.6"]]
+                 [org.slf4j/slf4j-log4j12 "1.6.6"]
+                 [ring/ring-jetty-adapter "1.3.1"]]
   :plugins [[lein-ring "0.8.13"]]
   :ring {:handler remote.core.handler/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring-mock "0.1.5"]]}})
+                        [ring-mock "0.1.5"]]}}
+  :main remote.core.handler)
