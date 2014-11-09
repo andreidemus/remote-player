@@ -1,3 +1,7 @@
+var fileIcon = "<span class='glyphicon glyphicon-file'></span>";
+var dirIcon = "<span class='glyphicon glyphicon-folder-close'></span>";
+var parentIcon = "<span class='glyphicon glyphicon-folder-open'></span>";
+
 function cmd(c) {
     console.log("command: " + c);
     $.ajax({
@@ -24,10 +28,17 @@ function loadPlaylist(dirId) {
     $.getJSON(url, function (data) {
         var items = [];
         $.each(data, function (key, val) {
+            var id = val.id
             var name = val.name;
             var isDirectory = val["is-directory"];
-            var item = "<li class='list-group-item movie' id='movie-" + key + "'>"
-                + "<a href='#' data-id='" + key + "' data-is-directory='" + isDirectory + "'>"
+            var isParent = val["is-parent"];
+            var icon = "";
+            if (isParent) icon = parentIcon;
+            else if (isDirectory) icon = dirIcon;
+            else icon = fileIcon;
+            var item = "<li class='list-group-item movie' id='movie-" + id + "'>"
+                + icon
+                + " <a href='#' data-id='" + id + "' data-is-directory='" + isDirectory + "'>"
                 + name + "</a></li>";
             items.push(item);
         });

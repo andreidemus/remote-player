@@ -16,7 +16,7 @@
 (defn ok []
   (resp {:status "ok"}))
 
-(defn path-by-id[id]
+(defn path-by-id [id]
   (let [fs (file-seq (file root))]
     (when-let [f (some #(when (= (hash %) id) %) fs)]
       (.getPath f))))
@@ -28,24 +28,26 @@
   (ok))
 
 (defn file-to-map [file]
-  {:name (.getName file)
-   :is-directory (.isDirectory file)
-   :hash (hash file)})
+  {:id (hash file)
+   :name (.getName file)
+   :is-directory (.isDirectory file)})
 
 (defn get-parent [path]
   (let [parent (.getParentFile (file path))]
-    {(str (hash parent))
-     {:name ".."
-      :is-directory true}}))
+    {:id (hash parent)
+     :name "[...]"
+     :is-directory true
+     :is-parent true}))
 
 (defn get-movies [path]
-  (let [files (.listFiles (file path))
-        names (map #(hash-map :name (.getName %) :is-directory (.isDirectory %)) files)
-        ids (map #(str (hash %)) files)
-        movies (zipmap ids names)]
+  (let [files (.listFiles (file path) (reify
+                                        java.io.FileFilter
+                                        (accept [this f]
+                                          (not (.isHidden f)))))
+        movies (map file-to-map files)]
     (if (= path root)
       movies
-      (merge (get-parent path) movies))))
+      (cons (get-parent path) movies))))
 
 (defn play [id]
   (let [movie (path-by-id id)
