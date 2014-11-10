@@ -6,7 +6,8 @@
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [clojure.data.json :as json]
             [clojure.tools.logging :as log]
-            [ring.adapter.jetty :as jetty])
+            [ring.adapter.jetty :as jetty]
+            [clojure.java.io :as io])
   (:gen-class))
 
 (def root (atom "/Users/andrei/Movies"))
@@ -67,7 +68,7 @@
   (resp (get-movies (path-by-id id))))
 
 (defroutes app-routes
-  (GET "/" [] (slurp "resources/index.html"))
+  (GET "/" [] (io/resource "index.html"))
   (GET "/play/:id" [id] (play (read-string id)))
   (GET "/playlist" [] (playlist))
   (GET "/playlist/:id" [id] (dir-playlist (read-string id)))
