@@ -56,7 +56,7 @@
   (let [movie (path-by-id id)
         c (str "rm -f " fifo
             " && mkfifo " fifo
-            " && mplayer -fs -quiet -slave -input file=" fifo " '" movie "'")] ;; -fs
+            " && mplayer -quiet -slave -input file=" fifo " '" movie "'")]
     (log/debug c)
     (future (log/debug (sh "sh" "-c" c)))
     (ok)))
@@ -81,6 +81,7 @@
   (GET "/backward" [] (cmd "seek -10 0"))
   (GET "/f-forward" [] (cmd "seek +150 0"))
   (GET "/f-backward" [] (cmd "seek -150 0"))
+  (GET "/switch-subs" [] (cmd "sub_visibility"))
   (route/not-found "Not Found"))
 
 (def app

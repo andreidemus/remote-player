@@ -85,6 +85,9 @@ $(document).ready(function () {
         $(".btn-group").on("click", "#refresh-playlist", function () {
             loadPlaylist()
         });
+        $(".btn-group").on("click", "#switch-subs", function () {
+            cmd("switch-subs")
+        });
 
         loadPlaylist()
     }
