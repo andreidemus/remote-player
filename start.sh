@@ -1,4 +1,5 @@
 #!/bin/bash
+export DISPLAY=:0
 if [ -f remote.pid ]; then
     echo "Already running. PID is" $(<remote.pid)
 else

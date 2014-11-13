@@ -56,7 +56,7 @@
   (let [movie (path-by-id id)
         c (str "rm -f " fifo
             " && mkfifo " fifo
-            " && mplayer -quiet -slave -input file=" fifo " '" movie "'")]
+            " && mplayer -fs -quiet -slave -input file=" fifo " '" movie "'")]
     (log/debug c)
     (future (log/debug (sh "sh" "-c" c)))
     (ok)))
