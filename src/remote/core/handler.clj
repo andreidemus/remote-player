@@ -10,8 +10,9 @@
             [clojure.java.io :as io])
   (:gen-class))
 
-(def root (atom "/Users/andrei/Movies"))
+(load-file "config.clj")
 (def fifo "/tmp/remote_fifo")
+(def root (atom (:path-to-moovies config)))
 
 (defn resp [r]
   (json/write-str r))
@@ -56,7 +57,7 @@
   (let [movie (path-by-id id)
         c (str "rm -f " fifo
             " && mkfifo " fifo
-            " && mplayer -fs -quiet -slave -input file=" fifo " '" movie "'")]
+            " && " (:mplayer-cmd config) " -slave -input file=" fifo " '" movie "'")]
     (log/debug c)
     (future (log/debug (sh "sh" "-c" c)))
     (ok)))
@@ -82,16 +83,12 @@
   (GET "/f-forward" [] (cmd "seek +150 0"))
   (GET "/f-backward" [] (cmd "seek -150 0"))
   (GET "/switch-subs" [] (cmd "sub_visibility"))
+  (GET "/config" [] (resp config))
   (route/not-found "Not Found"))
 
 (def app
   (wrap-defaults app-routes site-defaults))
 
-(defn -main
-  [& [root1 port1]]
-  (swap! root (fn [_] root1))
-  (let [port (Integer. (or port1
-                         (System/getenv "PORT")
-                         80))]
-    (jetty/run-jetty #'app {:port port
-                            :join? false})))
+(defn -main []
+  (jetty/run-jetty #'app {:port (:port config)
+                          :join? false}))
