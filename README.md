@@ -1,3 +1,4 @@
+[ ![Codeship Status for demus/Remote](https://codeship.com/projects/77fd8e00-5711-0132-be9f-0e0cfcc5dfb4/status)](https://codeship.com/projects/49740)
 # remote
 
 FIXME
