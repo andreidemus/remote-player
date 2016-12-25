@@ -43,31 +43,31 @@
      :is-directory true
      :is-parent true}))
 
-(defn get-movies [path]
+(defn get-medias [path]
   (let [files (.listFiles (file path) (reify
                                         java.io.FileFilter
                                         (accept [this f]
                                           (not (.isHidden f)))))
-        movies (map file-to-map files)]
+        medias (map file-to-map files)]
     (if (= path @root)
-      movies
-      (cons (get-parent path) movies))))
+      medias
+      (cons (get-parent path) medias))))
 
 (defn play [id]
   (cmd "quit")
-  (let [movie (path-by-id id)
+  (let [media (path-by-id id)
         c (str "rm -f " fifo
-            " && mkfifo " fifo
-            " && " (:mplayer-cmd config) " -slave -input file=" fifo " '" movie "'")]
+               " && mkfifo " fifo
+               " && " (:mplayer-cmd config) " -slave -input file=" fifo " '" media "'")]
     (log/debug c)
     (future (log/debug (sh "sh" "-c" c)))
     (ok)))
 
 (defn playlist []
-  (resp (get-movies @root)))
+  (resp (get-medias @root)))
 
 (defn dir-playlist [id]
-  (resp (get-movies (path-by-id id))))
+  (resp (get-medias (path-by-id id))))
 
 (defroutes app-routes
   (GET "/" [] (io/resource "index.html"))
