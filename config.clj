@@ -1,4 +1,4 @@
 (def config
   {:mplayer-cmd "mplayer -fs -quiet -slave"
-   :path-to-moovies "/Users/andrei/Movies/"
+   :path-to-media "/Users/andrei/Music/mp3/"
    :port 8082})

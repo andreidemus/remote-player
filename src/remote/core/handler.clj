@@ -12,7 +12,7 @@
 
 (load-file "config.clj")
 (def fifo "/tmp/remote_fifo")
-(def root (atom (:path-to-moovies config)))
+(def root (atom (:path-to-media config)))
 
 (defn resp [r]
   (json/write-str r))
@@ -54,6 +54,7 @@
       (cons (get-parent path) movies))))
 
 (defn play [id]
+  (cmd "quit")
   (let [movie (path-by-id id)
         c (str "rm -f " fifo
             " && mkfifo " fifo
