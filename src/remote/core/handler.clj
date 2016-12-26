@@ -13,6 +13,7 @@
 (load-file "config.clj")
 (def fifo "/tmp/remote_fifo")
 (def root (atom (:path-to-media config)))
+(def queue (atom nil))
 
 (defn resp [r]
   (json/write-str r))
@@ -27,8 +28,8 @@
 
 (defn cmd [& cs]
   (let [c (str "echo " (apply str (interpose " " cs)) " > " fifo)]
-    (log/debug c)
-    (future (sh "sh" "-c" c)))
+    (future (sh "sh" "-c" c))
+    (log/info c))
   (ok))
 
 (defn file-to-map [file]
@@ -53,7 +54,19 @@
       medias
       (cons (get-parent path) medias))))
 
-(defn play [id]
+(defn get-queue
+  []
+  (->> @root
+       get-medias
+       (map :id)
+       shuffle))
+
+(defn create-queue
+  []
+  (reset! queue (get-queue)))
+
+(defn play
+  [id]
   (cmd "quit")
   (let [media (path-by-id id)
         c (str "rm -f " fifo
@@ -63,14 +76,40 @@
     (future (log/debug (sh "sh" "-c" c)))
     (ok)))
 
+(defn play-item
+  [id]
+  (cmd "quit")
+  (let [media (path-by-id id)
+        c (str "rm -f " fifo
+               " && mkfifo " fifo
+               " && " (:mplayer-cmd config) " -slave -input file=" fifo " '" media "'")]
+    (log/info c)
+    (log/info (sh "sh" "-c" c))
+    (log/info (str "item " id "played"))))
+
+(defn play-queue
+  []
+  (log/info "play loop")
+  (when-let [item (peek @queue)]
+    (swap! queue pop)
+    (play-item item)
+    (recur)))
+
 (defn playlist []
   (resp (get-medias @root)))
+
+(defn handle-play-all
+  []
+  (log/info "Play all")
+  (future (play-queue))                  
+  (ok))
 
 (defn dir-playlist [id]
   (resp (get-medias (path-by-id id))))
 
 (defroutes app-routes
   (GET "/" [] (io/resource "index.html"))
+  (GET "/play-all" [] (handle-play-all))
   (GET "/play/:id" [id] (play (read-string id)))
   (GET "/playlist" [] (playlist))
   (GET "/playlist/:id" [id] (dir-playlist (read-string id)))
@@ -90,6 +129,10 @@
 (def app
   (wrap-defaults app-routes site-defaults))
 
-(defn -main []
+(defn start
+  []
+  (create-queue)
   (jetty/run-jetty #'app {:port (:port config)
                           :join? false}))
+(defn -main []
+  (start))

@@ -55,6 +55,9 @@ function loadPlaylist(dirId) {
 }
 
 $(document).ready(function () {
+        $(".btn-group").on("click", "#play", function () {
+            cmd("play-all")
+        });
         $(".btn-group").on("click", "#pause", function () {
             cmd("pause")
         });
